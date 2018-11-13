@@ -29,14 +29,14 @@ import minenocraft.renderers.interfaces.IGameRendererProcessor;
  */
 public class GameRenderer implements GLEventListener
 {
-    private GLU glu;
-    private GLUT glut;
+    private final GLU glu;
+    private final GLUT glut;
 
-    private JFrame jFrame;
-    private GLJPanel gljPanel;
+    private final JFrame jFrame;
+    private final GLJPanel gljPanel;
 
-    private float yaw;
-    private float pitch;
+    private float yaw = 0;
+    private float pitch = 0;
 
     private boolean wPressed = false;
     private boolean aPressed = false;
@@ -46,12 +46,11 @@ public class GameRenderer implements GLEventListener
     float x = 0;
     float z = 0;
 
-    //NEW NEW NEW
-    Vec3d camPos = new Vec3d(0, 0, 3);
+    Vec3d camPos = new Vec3d(-3, 3, 0);
     Vec3d camFront = new Vec3d(0, 0, -1);
     Vec3d camUp = new Vec3d(0, 1, 0);
 
-    private ArrayList<IGameRendererProcessor> processors;
+    private final ArrayList<IGameRendererProcessor> processors;
 
     public GameRenderer()
     {
@@ -152,7 +151,8 @@ public class GameRenderer implements GLEventListener
         processors = new ArrayList<>();
 
         gljPanel.addGLEventListener(this);
-        jFrame.setSize(500, 500);
+        jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        jFrame.setUndecorated(true);
         jFrame.getContentPane().add(gljPanel);
         jFrame.setVisible(true);
     }
@@ -171,12 +171,12 @@ public class GameRenderer implements GLEventListener
 
     private void processCamera(GLAutoDrawable glad)
     {
-        float camSpeed = 0.f;
+        float camSpeed = 0.1f;
 
         camFront = new Vec3d(
-                Math.cos(Math.toRadians(pitch)) * Math.cos(Math.toRadians(yaw)),
-                Math.sin(Math.toRadians(pitch)),
-                Math.cos(Math.toRadians(pitch)) * Math.sin(Math.toRadians(yaw))
+            Math.cos(Math.toRadians(pitch)) * Math.cos(Math.toRadians(yaw)),
+            Math.sin(Math.toRadians(pitch)),
+            Math.cos(Math.toRadians(pitch)) * Math.sin(Math.toRadians(yaw))
         );
 
         camFront.normalize();
@@ -187,7 +187,7 @@ public class GameRenderer implements GLEventListener
         Vec3d auxAD = new Vec3d();
         auxAD.cross(camFront, camUp);
         auxAD.mul(camSpeed);
-
+        
         if (wPressed)
             camPos.add(auxWS);
         if (sPressed)
@@ -202,9 +202,9 @@ public class GameRenderer implements GLEventListener
         auxFront.add(camFront);
 
         glu.gluLookAt(
-                camPos.x, camPos.y, camPos.z,
-                auxFront.x, auxFront.y, auxFront.z,
-                camUp.x, camUp.y, camUp.z
+            camPos.x, camPos.y, camPos.z,
+            auxFront.x, auxFront.y, auxFront.z,
+            camUp.x, camUp.y, camUp.z
         );
     }
 
@@ -214,24 +214,10 @@ public class GameRenderer implements GLEventListener
         GL gl = glad.getGL();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
-//        if (wPressed)
-//            z += 0.1;
-//        if (sPressed)
-//            z -= 0.1;
-//        if (aPressed)
-//            x -= 0.1;
-//        if (dPressed)
-//            x += 0.1;
-//
-//        double yAng = yaw * Math.PI / 360;
-//        double pAng = pitch * Math.PI / 360;
         gl.glPushMatrix();
 
         processCamera(glad);
 
-        //gl.glTranslated(x * Math.cos(yAng), 1, z * Math.sin(pAng));
-        //gl.glRotated(pitch, 1, 0, 0);
-        //gl.glRotated(yaw, 0, 1, 0);
         processors.forEach(p ->
         {
             gl.glPushMatrix();
@@ -248,20 +234,30 @@ public class GameRenderer implements GLEventListener
     public void reshape(GLAutoDrawable glad, int x, int y, int w, int h)
     {
         GL gl = glad.getGL();
+        
         gl.glMatrixMode(GL.GL_PROJECTION);
         gl.glLoadIdentity();
+        
         glu.gluPerspective(45, (float) w / h, 1, 200);
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glLoadIdentity();
         gl.glTranslated(0, 0, -10);
 
         gl.glClearDepth(1);
+        gl.glClearColor(0, 0, 0, 0);
+        
         gl.glEnable(GL.GL_DEPTH_TEST);
         gl.glDepthFunc(GL.GL_LEQUAL);
 
         gl.glEnable(GL.GL_LIGHTING);
         gl.glEnable(GL.GL_LIGHT0);
+        gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glEnable(GL.GL_COLOR_MATERIAL);
+        
+        gl.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, new float[] { 0, 1, 0 }, 0);
+        gl.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, new float[] { 1, 1, 1 }, 0);
+
+        gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
     }
 
     @Override
