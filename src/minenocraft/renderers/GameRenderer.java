@@ -8,13 +8,21 @@ package minenocraft.renderers;
 import com.sun.javafx.geom.Vec3d;
 import com.sun.opengl.util.Animator;
 import com.sun.opengl.util.GLUT;
+import java.awt.AWTException;
+import java.awt.Cursor;
+import java.awt.Point;
+import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
@@ -43,14 +51,13 @@ public class GameRenderer implements GLEventListener
     private boolean sPressed = false;
     private boolean dPressed = false;
 
-    float x = 0;
-    float z = 0;
-
-    Vec3d camPos = new Vec3d(-3, 3, 0);
-    Vec3d camFront = new Vec3d(0, 0, -1);
-    Vec3d camUp = new Vec3d(0, 1, 0);
+    private final Vec3d camPos = new Vec3d(0, 3, 0);
+    private Vec3d camFront;
+    private final Vec3d camUp = new Vec3d(0, 1, 0);
 
     private final ArrayList<IGameRendererProcessor> processors;
+
+    private Robot robot;
 
     public GameRenderer()
     {
@@ -58,6 +65,15 @@ public class GameRenderer implements GLEventListener
         glut = new GLUT();
 
         jFrame = new JFrame();
+
+        try
+        {
+            robot = new Robot();
+        }
+        catch (AWTException ex)
+        {
+            Logger.getLogger(GameRenderer.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         jFrame.addWindowListener(new WindowAdapter()
         {
@@ -76,6 +92,9 @@ public class GameRenderer implements GLEventListener
             private float lastX = 0;
             private float lastY = 0;
 
+            private boolean isRobot = false;
+            private boolean firstMove = true;
+
             @Override
             public void mouseDragged(MouseEvent e)
             {
@@ -84,16 +103,33 @@ public class GameRenderer implements GLEventListener
             @Override
             public void mouseMoved(MouseEvent e)
             {
-                yaw += (e.getX() - lastX) / 2;
-                pitch += (e.getY() - lastY) / 2;
+                if (isRobot)
+                    return;
+
+                isRobot = true;
+                robot.mouseMove(jFrame.getX() + jFrame.getWidth() / 2, jFrame.getY() + jFrame.getHeight() / 2);
+                isRobot = false;
+
+                if (firstMove)
+                {
+                    firstMove = false;
+                    lastX = jFrame.getWidth() / 2;
+                    lastY = jFrame.getHeight() / 2;
+                    return;
+                }
+
+                float mouseSensitivity = 1 / 3f;
+
+                yaw += (e.getX() - lastX) * mouseSensitivity;
+                pitch += (e.getY() - lastY) * mouseSensitivity * -1;
 
                 if (pitch > 89.0f)
                     pitch = 89.0f;
                 if (pitch < -89.0f)
                     pitch = -89.0f;
 
-                lastX = e.getX();
-                lastY = e.getY();
+                lastX = jFrame.getWidth() / 2;
+                lastY = jFrame.getHeight() / 2;
             }
         });
 
@@ -106,15 +142,19 @@ public class GameRenderer implements GLEventListener
                 switch (e.getKeyChar())
                 {
                     case 'w':
+                    case 'W':
                         wPressed = true;
                         break;
                     case 'a':
+                    case 'A':
                         aPressed = true;
                         break;
                     case 's':
+                    case 'S':
                         sPressed = true;
                         break;
                     case 'd':
+                    case 'D':
                         dPressed = true;
                         break;
                 }
@@ -131,15 +171,19 @@ public class GameRenderer implements GLEventListener
                 switch (e.getKeyChar())
                 {
                     case 'w':
+                    case 'W':
                         wPressed = false;
                         break;
                     case 'a':
+                    case 'A':
                         aPressed = false;
                         break;
                     case 's':
+                    case 'S':
                         sPressed = false;
                         break;
                     case 'd':
+                    case 'D':
                         dPressed = false;
                         break;
                 }
@@ -151,9 +195,16 @@ public class GameRenderer implements GLEventListener
         processors = new ArrayList<>();
 
         gljPanel.addGLEventListener(this);
-        jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-        jFrame.setUndecorated(true);
+        //jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        //jFrame.setUndecorated(true);
         jFrame.getContentPane().add(gljPanel);
+
+        BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
+        jFrame.getContentPane().setCursor(blankCursor);
+
+        jFrame.setSize(900, 600);
+
         jFrame.setVisible(true);
     }
 
@@ -171,40 +222,65 @@ public class GameRenderer implements GLEventListener
 
     private void processCamera(GLAutoDrawable glad)
     {
-        float camSpeed = 0.1f;
+        float camSpeed = 0.2f;
 
         camFront = new Vec3d(
-            Math.cos(Math.toRadians(pitch)) * Math.cos(Math.toRadians(yaw)),
-            Math.sin(Math.toRadians(pitch)),
-            Math.cos(Math.toRadians(pitch)) * Math.sin(Math.toRadians(yaw))
+                Math.cos(Math.toRadians(pitch)) * Math.cos(Math.toRadians(yaw)),
+                Math.sin(Math.toRadians(pitch)),
+                Math.cos(Math.toRadians(pitch)) * Math.sin(Math.toRadians(yaw))
         );
 
         camFront.normalize();
 
-        Vec3d auxWS = new Vec3d(camFront);
-        auxWS.mul(camSpeed);
+//        Vec3d auxWS = new Vec3d(camFront);
+//        auxWS.mul(camSpeed);
+//        
+//        Vec3d auxAD = new Vec3d();
+//        auxAD.cross(camFront, camUp);
+//        auxAD.mul(camSpeed);
+//        if (wPressed)
+//            camPos.add(auxWS);
+//        if (sPressed)
+//            camPos.sub(auxWS);
+//
+//        if (aPressed)
+//            camPos.sub(auxAD);
+//        if (dPressed)
+//            camPos.add(auxAD);
+        Vec3d movement = new Vec3d(camFront);
+        movement.y = 0;
+        movement.normalize();
 
-        Vec3d auxAD = new Vec3d();
-        auxAD.cross(camFront, camUp);
-        auxAD.mul(camSpeed);
-        
         if (wPressed)
-            camPos.add(auxWS);
+        {
+            movement.mul(camSpeed);
+            camPos.add(movement);
+        }
         if (sPressed)
-            camPos.sub(auxWS);
-
+        {
+            movement.mul(-camSpeed);
+            camPos.add(movement);
+        }
         if (aPressed)
-            camPos.sub(auxAD);
+        {
+            movement.cross(movement, camUp);
+            movement.mul(-camSpeed);
+            camPos.add(movement);
+        }
         if (dPressed)
-            camPos.add(auxAD);
+        {
+            movement.cross(movement, camUp);
+            movement.mul(camSpeed);
+            camPos.add(movement);
+        }
 
         Vec3d auxFront = new Vec3d(camPos);
         auxFront.add(camFront);
 
         glu.gluLookAt(
-            camPos.x, camPos.y, camPos.z,
-            auxFront.x, auxFront.y, auxFront.z,
-            camUp.x, camUp.y, camUp.z
+                camPos.x, camPos.y, camPos.z,
+                auxFront.x, auxFront.y, auxFront.z,
+                camUp.x, camUp.y, camUp.z
         );
     }
 
@@ -234,18 +310,15 @@ public class GameRenderer implements GLEventListener
     public void reshape(GLAutoDrawable glad, int x, int y, int w, int h)
     {
         GL gl = glad.getGL();
-        
+
         gl.glMatrixMode(GL.GL_PROJECTION);
-        gl.glLoadIdentity();
-        
+
         glu.gluPerspective(45, (float) w / h, 1, 200);
         gl.glMatrixMode(GL.GL_MODELVIEW);
-        gl.glLoadIdentity();
-        gl.glTranslated(0, 0, -10);
 
         gl.glClearDepth(1);
         gl.glClearColor(0, 0, 0, 0);
-        
+
         gl.glEnable(GL.GL_DEPTH_TEST);
         gl.glDepthFunc(GL.GL_LEQUAL);
 
@@ -253,11 +326,19 @@ public class GameRenderer implements GLEventListener
         gl.glEnable(GL.GL_LIGHT0);
         gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glEnable(GL.GL_COLOR_MATERIAL);
-        
-        gl.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, new float[] { 0, 1, 0 }, 0);
-        gl.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, new float[] { 1, 1, 1 }, 0);
+
+        gl.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, new float[]
+        {
+            0, 1, 0
+        }, 0);
+        gl.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, new float[]
+        {
+            1, 1, 1
+        }, 0);
 
         gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
+
+        gl.glLoadIdentity();
     }
 
     @Override

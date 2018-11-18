@@ -5,11 +5,8 @@
  */
 package minenocraft;
 
-import com.sun.opengl.util.GLUT;
-import javax.media.opengl.GL;
 import minenocraft.renderers.GameRenderer;
 import minenocraft.renderers.TerrainRenderer;
-import minenocraft.renderers.interfaces.IGameRendererProcessor;
 
 /**
  *
@@ -38,7 +35,7 @@ public class Game
         gameRenderer = new GameRenderer();
 
         gameRenderer.addProcessor(new TerrainRenderer());
-        
+
         // running = true;
         //gameLoopThread.start();
     }

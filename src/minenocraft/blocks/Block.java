@@ -19,12 +19,10 @@ import javax.media.opengl.GL;
  *
  * @author gabri
  */
-class Block
+abstract class Block
 {
-    private final float cubeSize = 1f;
-    private final float halfCubeSize = cubeSize / 2;
-    
-    protected boolean transparent;
+    protected float cubeSize = 1f;
+    protected float halfCubeSize = cubeSize / 2;
 
     // 0 - Top
     // 1 - Bottom
@@ -34,11 +32,10 @@ class Block
     // 5 - Front
     protected Texture[] textures;
 
-    protected Block(String[] texturePaths, boolean transparent)
+    protected Block(String[] texturePaths)
     {
         textures = new Texture[6];
-        this.transparent = transparent;
-        
+
         for (int i = 0; i < 6; i++)
         {
             BufferedImage textureImg = null;
@@ -52,26 +49,19 @@ class Block
             }
 
             Texture t = TextureIO.newTexture(textureImg, true);
-            //t.enable();
-
+            t.setTexParameterf(GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
+            t.setTexParameterf(GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
+            
             textures[i] = t;
         }
-    }
-
-    public boolean isTransparent()
-    {
-        return transparent;
     }
 
     public void draw(GL gl)
     {
         // Top
         
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[0].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            textures[0].bind();
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-            
             gl.glVertex3d(-halfCubeSize, halfCubeSize, -halfCubeSize);
             gl.glTexCoord2d(0, 0);
             
@@ -86,11 +76,8 @@ class Block
         gl.glEnd();
 
         // Bottom
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[1].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            textures[1].bind();
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-            
             gl.glVertex3d(-halfCubeSize, -halfCubeSize, -halfCubeSize);
             gl.glTexCoord2d(0, 0);
             
@@ -105,14 +92,11 @@ class Block
         gl.glEnd();
 
         // Left
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[2].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            textures[2].bind();
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-            
             gl.glVertex3d(-halfCubeSize, halfCubeSize, halfCubeSize);
             gl.glTexCoord2d(0, 0);
-            
+        
             gl.glVertex3d(-halfCubeSize, halfCubeSize, -halfCubeSize);
             gl.glTexCoord2d(0, 1);
             
@@ -124,11 +108,8 @@ class Block
         gl.glEnd();
 
         // Right
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[3].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            textures[3].bind();
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-            
             gl.glVertex3d(halfCubeSize, halfCubeSize, halfCubeSize);
             gl.glTexCoord2d(0, 0);
             
@@ -143,11 +124,8 @@ class Block
         gl.glEnd();
         
         // Back
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[4].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            textures[4].bind();
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-            
             gl.glVertex3d(-halfCubeSize, halfCubeSize, -halfCubeSize);
             gl.glTexCoord2d(0, 0);
             
@@ -162,11 +140,8 @@ class Block
         gl.glEnd();
         
         // Front
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textures[5].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            textures[5].bind();
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-            gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_NEAREST);
-            
             gl.glVertex3d(-halfCubeSize, halfCubeSize, halfCubeSize);
             gl.glTexCoord2d(0, 0);
             

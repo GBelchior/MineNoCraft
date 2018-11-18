@@ -23,10 +23,10 @@ public class Grass extends Block
             "./textures/grass_side.png",
             "./textures/grass_side.png",
             "./textures/grass_side.png",
-        }, false);
+        });
     }
 
-    public static Grass Instance()
+    public static Grass instance()
     {
         if (instance == null)
         {
