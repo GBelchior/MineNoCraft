@@ -46,14 +46,17 @@ public class GameRenderer implements GLEventListener
     private float yaw = 0;
     private float pitch = 0;
 
-    private boolean wPressed = false;
-    private boolean aPressed = false;
-    private boolean sPressed = false;
-    private boolean dPressed = false;
+    private boolean w = false;
+    private boolean a = false;
+    private boolean s = false;
+    private boolean d = false;
+    private boolean space = false;
+    private boolean shift = false;
 
-    private final Vec3d camPos = new Vec3d(0, 3, 0);
-    private Vec3d camFront;
+    private final Vec3d camPos = new Vec3d(0, 110, 0);
     private final Vec3d camUp = new Vec3d(0, 1, 0);
+
+    private boolean playerCanFly = true;
 
     private final ArrayList<IGameRendererProcessor> processors;
 
@@ -139,52 +142,61 @@ public class GameRenderer implements GLEventListener
             @Override
             public void keyTyped(KeyEvent e)
             {
-                switch (e.getKeyChar())
-                {
-                    case 'w':
-                    case 'W':
-                        wPressed = true;
-                        break;
-                    case 'a':
-                    case 'A':
-                        aPressed = true;
-                        break;
-                    case 's':
-                    case 'S':
-                        sPressed = true;
-                        break;
-                    case 'd':
-                    case 'D':
-                        dPressed = true;
-                        break;
-                }
+
             }
 
             @Override
             public void keyPressed(KeyEvent e)
             {
+                switch (e.getKeyCode())
+                {
+                    case KeyEvent.VK_W:
+                        w = true;
+                        break;
+                    case KeyEvent.VK_S:
+                        s = true;
+                        break;
+                    case KeyEvent.VK_A:
+                        a = true;
+                        break;
+                    case KeyEvent.VK_D:
+                        d = true;
+                        break;
+                    case KeyEvent.VK_SPACE:
+                        space = true;
+                        break;
+                    case KeyEvent.VK_SHIFT:
+                        shift = true;
+                        break;
+
+                    case KeyEvent.VK_F:
+                        playerCanFly = !playerCanFly;
+                        break;
+                }
             }
 
             @Override
             public void keyReleased(KeyEvent e)
             {
-                switch (e.getKeyChar())
+                switch (e.getKeyCode())
                 {
-                    case 'w':
-                    case 'W':
-                        wPressed = false;
+                    case KeyEvent.VK_W:
+                        w = false;
                         break;
-                    case 'a':
-                    case 'A':
-                        aPressed = false;
+                    case KeyEvent.VK_S:
+                        s = false;
                         break;
-                    case 's':
-                    case 'S':
-                        sPressed = false;
+                    case KeyEvent.VK_A:
+                        a = false;
                         break;
-                    case 'd':
-                    case 'D':
-                        dPressed = false;
+                    case KeyEvent.VK_D:
+                        d = false;
+                        break;
+                    case KeyEvent.VK_SPACE:
+                        space = false;
+                        break;
+                    case KeyEvent.VK_SHIFT:
+                        shift = false;
                         break;
                 }
             }
@@ -195,15 +207,15 @@ public class GameRenderer implements GLEventListener
         processors = new ArrayList<>();
 
         gljPanel.addGLEventListener(this);
-        //jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-        //jFrame.setUndecorated(true);
+        jFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        jFrame.setUndecorated(true);
         jFrame.getContentPane().add(gljPanel);
 
         BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
         Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
         jFrame.getContentPane().setCursor(blankCursor);
 
-        jFrame.setSize(900, 600);
+        //jFrame.setSize(900, 600);
 
         jFrame.setVisible(true);
     }
@@ -224,7 +236,7 @@ public class GameRenderer implements GLEventListener
     {
         float camSpeed = 0.2f;
 
-        camFront = new Vec3d(
+        Vec3d camFront = new Vec3d(
                 Math.cos(Math.toRadians(pitch)) * Math.cos(Math.toRadians(yaw)),
                 Math.sin(Math.toRadians(pitch)),
                 Math.cos(Math.toRadians(pitch)) * Math.sin(Math.toRadians(yaw))
@@ -232,47 +244,7 @@ public class GameRenderer implements GLEventListener
 
         camFront.normalize();
 
-//        Vec3d auxWS = new Vec3d(camFront);
-//        auxWS.mul(camSpeed);
-//        
-//        Vec3d auxAD = new Vec3d();
-//        auxAD.cross(camFront, camUp);
-//        auxAD.mul(camSpeed);
-//        if (wPressed)
-//            camPos.add(auxWS);
-//        if (sPressed)
-//            camPos.sub(auxWS);
-//
-//        if (aPressed)
-//            camPos.sub(auxAD);
-//        if (dPressed)
-//            camPos.add(auxAD);
-        Vec3d movement = new Vec3d(camFront);
-        movement.y = 0;
-        movement.normalize();
-
-        if (wPressed)
-        {
-            movement.mul(camSpeed);
-            camPos.add(movement);
-        }
-        if (sPressed)
-        {
-            movement.mul(-camSpeed);
-            camPos.add(movement);
-        }
-        if (aPressed)
-        {
-            movement.cross(movement, camUp);
-            movement.mul(-camSpeed);
-            camPos.add(movement);
-        }
-        if (dPressed)
-        {
-            movement.cross(movement, camUp);
-            movement.mul(camSpeed);
-            camPos.add(movement);
-        }
+        processInput(camFront, camSpeed);
 
         Vec3d auxFront = new Vec3d(camPos);
         auxFront.add(camFront);
@@ -282,6 +254,55 @@ public class GameRenderer implements GLEventListener
                 auxFront.x, auxFront.y, auxFront.z,
                 camUp.x, camUp.y, camUp.z
         );
+    }
+
+    private void processInput(Vec3d cameraFront, float movementSpeed)
+    {
+        Vec3d movement = new Vec3d(cameraFront);
+        movement.y = 0;
+        movement.normalize();
+
+        if (!w && !s && !a && !d)
+        {
+            movement = new Vec3d();
+        }
+
+        if (w)
+        {
+            movement.mul(movementSpeed);
+        }
+
+        if (s)
+        {
+            movement.mul(-movementSpeed);
+        }
+
+        if (a)
+        {
+            movement.cross(movement, camUp);
+            movement.mul(-movementSpeed);
+        }
+
+        if (d)
+        {
+            movement.cross(movement, camUp);
+            movement.mul(movementSpeed);
+        }
+
+        if (playerCanFly)
+        {
+            if (space)
+            {
+                camPos.add(new Vec3d(0, movementSpeed, 0));
+            }
+
+            if (shift)
+            {
+                camPos.add(new Vec3d(0, -movementSpeed, 0));
+            }
+        }
+
+        camPos.add(movement);
     }
 
     @Override

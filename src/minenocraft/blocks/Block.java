@@ -19,10 +19,10 @@ import javax.media.opengl.GL;
  *
  * @author gabri
  */
-abstract class Block
+public abstract class Block
 {
-    protected float cubeSize = 1f;
-    protected float halfCubeSize = cubeSize / 2;
+    public static final float BLOCK_SIZE = 1f;
+    public static final float HALF_BLOCK_SIZE = BLOCK_SIZE / 2;
 
     // 0 - Top
     // 1 - Bottom
@@ -59,99 +59,98 @@ abstract class Block
     public void draw(GL gl)
     {
         // Top
-        
         gl.glBindTexture(GL.GL_TEXTURE_2D, textures[0].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            gl.glVertex3d(-halfCubeSize, halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 0);
             
-            gl.glVertex3d(halfCubeSize, halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 1);
             
-            gl.glVertex3d(halfCubeSize, halfCubeSize, halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 1);
             
-            gl.glVertex3d(-halfCubeSize, halfCubeSize, halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 0);
         gl.glEnd();
 
         // Bottom
         gl.glBindTexture(GL.GL_TEXTURE_2D, textures[1].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            gl.glVertex3d(-halfCubeSize, -halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 0);
             
-            gl.glVertex3d(halfCubeSize, -halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 1);
             
-            gl.glVertex3d(halfCubeSize, -halfCubeSize, halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 1);
             
-            gl.glVertex3d(-halfCubeSize, -halfCubeSize, halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 0);
         gl.glEnd();
 
         // Left
         gl.glBindTexture(GL.GL_TEXTURE_2D, textures[2].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            gl.glVertex3d(-halfCubeSize, halfCubeSize, halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 0);
         
-            gl.glVertex3d(-halfCubeSize, halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 1);
             
-            gl.glVertex3d(-halfCubeSize, -halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 1);
             
-            gl.glVertex3d(-halfCubeSize, -halfCubeSize, halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 0);
         gl.glEnd();
 
         // Right
         gl.glBindTexture(GL.GL_TEXTURE_2D, textures[3].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            gl.glVertex3d(halfCubeSize, halfCubeSize, halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 0);
             
-            gl.glVertex3d(halfCubeSize, halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 1);
             
-            gl.glVertex3d(halfCubeSize, -halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 1);
             
-            gl.glVertex3d(halfCubeSize, -halfCubeSize, halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 0);
         gl.glEnd();
         
         // Back
         gl.glBindTexture(GL.GL_TEXTURE_2D, textures[4].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            gl.glVertex3d(-halfCubeSize, halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 0);
             
-            gl.glVertex3d(halfCubeSize, halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 1);
             
-            gl.glVertex3d(halfCubeSize, -halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 1);
             
-            gl.glVertex3d(-halfCubeSize, -halfCubeSize, -halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 0);
         gl.glEnd();
         
         // Front
         gl.glBindTexture(GL.GL_TEXTURE_2D, textures[5].getTextureObject());
         gl.glBegin(GL.GL_QUADS);
-            gl.glVertex3d(-halfCubeSize, halfCubeSize, halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 0);
             
-            gl.glVertex3d(halfCubeSize, halfCubeSize, halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(0, 1);
             
-            gl.glVertex3d(halfCubeSize, -halfCubeSize, halfCubeSize);
+            gl.glVertex3d(HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 1);
             
-            gl.glVertex3d(-halfCubeSize, -halfCubeSize, halfCubeSize);
+            gl.glVertex3d(-HALF_BLOCK_SIZE, -HALF_BLOCK_SIZE, HALF_BLOCK_SIZE);
             gl.glTexCoord2d(1, 0);
         gl.glEnd();
     }
